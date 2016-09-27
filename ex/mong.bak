@@ -1,0 +1,100 @@
+from ath import mlab
+from requests import post, get, put, delete
+from json import dumps
+from google.appengine.api import users
+from re import sub
+
+#tmpudb='mongodb://lameone8:GofuckyourselF@ds041633.mongolab.com:41633/luz34z'
+
+mlusr  = str( mlab('usr') )
+mlpwd  = str( mlab('pswd') )
+mlkey  = str( mlab('mkey') )
+mldb   = str( mlab('m_db') )
+#mlcll  = str( mlab('tml_cl') )
+mluniq = str( mlab('muniq') )
+mlport = str( mlab('mport') )
+
+db_uri  = str( 'mongodb://' + mlusr + ':' + mlpwd + '@' + mluniq + '.mongolab.com:' + mlport + '/' + mldb )
+
+def pst( collection, stuff ):
+  if len( stuff ) == 0:
+     return '501'
+  t = str( type( stuff ) )
+  if not 'list' in t:
+     return '501'
+  api        = {"apiKey": mlkey}
+  http_start = "https://api.mongolab.com/api/1/"
+  http_type  = str( "databases/" + mldb + "/collections/" + collection )
+  headers    =   {"Content-Type": "application/json"}
+  try:
+    r = post(http_start+http_type, params=api, headers=headers,data = dumps(stuff))
+    return r.status_code
+  except:
+    return 'offline'
+
+def delc( collection, doc ):
+  headers    =   {"Content-Type": "application/json"}
+  dta=str( "https://api.mongolab.com/api/1/databases/tmpusr/collections/" + collection + "/" + doc + "?apiKey=" + mlkey )
+  r = delete(dta, headers=headers )
+  sc = str( r.status_code )
+  rc = str( r.text )
+
+def upd( collection, doc, stuff ):
+  if len( stuff ) == 0:
+     return '501'
+  t = str( type( stuff ) )
+  if not 'list' in t:
+     return '501'
+  delc( collection, doc )
+  pst( collection, stuff )  
+
+def req( collection, q ):
+  q = str( q )
+  if q == None:
+     q == ''
+  if len( collection ) == 0:
+     return '501'
+  url = str( "https://api.mongolab.com/api/1/databases/" + mldb +  "/collections/" + collection + "?q={" + q + "}&fo={}&apiKey=" + mlkey )
+  rsp = get( url )
+  sc  = rsp.status_code
+  if sc == 200:
+    rc = rsp.content
+    return rc
+  return
+
+def idc( collection, k, p ):
+  q = str( '"' + str(k) + '":"' + str(p) + '"' )
+  g = req( collection, q )
+  g = str( str(g).split('"} ,')[0] )
+  g = g.split('"')[-1]
+  return g
+
+def dump( collection ):
+  if len( collection ) == 0:
+     return '501'
+  url = str( "https://api.mongolab.com/api/1/databases/" + mldb +  "/collections/" + collection + "?q={}&apiKey=" + mlkey )
+  rsp = get( url )
+  sc  = rsp.status_code
+  if sc == 200:
+     return rsp.content
+  return sc
+
+def listc():
+  url = str( "https://api.mongolab.com/api/1/databases/" + mldb +  "/collections?apiKey="  + mlkey )
+  rsp = get( url )
+  sc = rsp.status_code
+  if sc == 200:
+     return rsp.content
+  return sc
+
+def nul( collection ):
+  DATA = {}
+  api        = {"q":"{}","apiKey": mlkey}
+  http_start = "https://api.mongolab.com/api/1/"
+  http_type  = str( "databases/" +  mldb + "/collections/" + collection )
+  headers    =   {"Content-Type": "application/json"}
+  r = put(http_start+http_type, params=api, headers=headers,data = dumps(DATA))
+  sc = r.status_code
+  if sc == 200:
+     return sc
+  return

@@ -1,0 +1,82 @@
+a:link {
+    color: 08db08;
+    text-decoration: none;
+}
+label {
+    color: yellow;
+}
+
+h1 {
+    text-align: center;
+}
+
+
+ /* Absolute positioned header for all browsers*/
+div#header-wrapper {
+    position:absolute;
+    background-color: #000000;
+    background: url(header9.png) repeat;
+    font-color: yellow;
+    width:100%;
+    top:0;
+    left:0;
+    height:96px;
+}
+/* Resets the header position to fixed for real browsers such as Firefox*/
+body>div#header-wrapper {
+    position:fixed;
+}
+div#header {
+    height:96px;
+    width:720px;
+    font-color: yellow;
+    margin:0 auto;
+    background-color: #000000;
+    color: #ff0a00;
+    font-style: oblique;
+    font-size: 36px;
+    text-align: center; 
+    background: url(header3.png) repeat;
+}
+
+
+div#content-wrapper {
+    margin-left:0;
+    voice-family: "\"}\""; 
+    voice-family:inherit;
+    margin-left:16px;
+    padding-bottom:0px;
+}
+
+body>div#content-wrapper {
+    margin-left:0;
+}
+
+div#content {
+    width:720px;
+    margin:0 auto;
+    background: url(ptile.jpg) repeat;
+}
+
+div#footerwrap {
+    width:100%;
+    position:absolute;
+    bottom:0;
+    left:0;
+    height:50px;
+}
+body>div#footerwrap {
+    position:fixed;
+    background: url(flags.png) repeat;
+}
+
+div#footer {
+    height:70px;
+    width:725px;
+    margin:0 auto;
+    font-style: oblique;
+    color: yellow;
+    font-size: 22px;
+    text-align: center;
+    background: url(flags.png) repeat;
+}

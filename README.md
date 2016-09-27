@@ -1,0 +1,1 @@
+incomplete shopping cart.  Utalized mandrill api (when it was free) to verify user creation via automatic email.  Users could add items to sell, fill out description, provide url for a picture, and that item would appear in random order on the landing.  Mongolab db backend, also free.  Made for appengine.

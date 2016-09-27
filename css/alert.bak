@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+import argparse
+import logging
+import mandrill
+import socket
+
+FORMAT = '%(asctime)-15s [%(levelname)s] %(message)s'
+DATE_FMT = '%m/%d/%Y %H:%M:%S'
+
+def parse_args():
+    """ Parse command line arguments and returns a configuration object
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f', '--api-key-file', required=True,
+                        help="The file containing the API key")
+    parser.add_argument('-m', '--msg', required=True, help="The body of the message")
+    parser.add_argument('-d', dest='dest', help="The recipient of the email")
+    parser.add_argument('-s', '--subject', help='The subject for the email',
+                        default='Alert from {hostname}'.format(hostname=socket.gethostname()))
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enables debug logging')
+    return parser.parse_args()
+
+
+
+def post_mail(to, subj, msg, **kwargs):
+    msg = {
+        'from_email': kwargs.get('from_email'),
+        'from_name': 'Green Fairy',
+        'html': '<h3>Thank you for joining!</h3><p>{msg}</p><h6> Confirmation Required'
+                'Please click on the link below to activate your account</h6>'.format(msg=msg),
+        'headers': {'Reply-To': kwargs.get('reply_to')},
+        'subject': subj,
+        'to': [
+            {'email': to,
+             'name': kwargs.get('recipient'),
+             'type': 'to'
+            }
+        ]
+    }
+    mc = mandrill.Mandrill(kwargs.get('api_key'))
+    try:
+        res = mc.messages.send(msg, async=kwargs.get('async', False))
+        if res and not res[0].get('status') == 'sent':
+            logging.error('Could not send email to {to}; status: {status}, reason: {reason}'
+                          .format(to=to, status=res.get('status', 'unknown'),
+                                  reason=res.get('reject_reason')))
+            exit(1)
+    except mandrill.Error, e:
+        # Mandrill errors are thrown as exceptions
+        logging.error('A mandrill error occurred: {} - {}'.format(e.__class__.__name__, e))
+        exit(1)
+    logging.info('Message sent to {to}'.format(to=to))
+
+
+def read_api_key(filename):
+    with open(filename, 'r') as key_file:
+        api_key = key_file.readline().rstrip('\n')
+    return api_key
+
+
+def main():
+    config = parse_args()
+    loglevel = logging.DEBUG if config.verbose else logging.INFO
+    logging.basicConfig(format=FORMAT, datefmt=DATE_FMT, level=loglevel)
+    logging.info('Mailer Auto Script starting...')
+    api_key = read_api_key(config.api_key_file)
+    logging.debug('API key: {}'.format(api_key))
+    kwargs = {'api_key': api_key,
+              'reply_to': 'greenfairy@noreply.org',
+              'recipient': 'Recipient',
+              'from_email': 'greenfairy@noreply.org'
+    }
+    post_mail(to=config.dest, msg=config.msg, subj=config.subject, **kwargs)
+
+
+if __name__ == "__main__":
+    main()
